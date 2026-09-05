@@ -7,7 +7,7 @@ import { useProducts } from '@/components/products-provider'
 import { ProductForm } from '@/components/admin/product-form'
 import { ProductRow } from '@/components/admin/product-row'
 
-const ADMIN_PASSWORD = '1234'
+const ADMIN_PASSWORD = 'Lotus17!26'
 
 function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
   const [value, setValue] = useState('')
