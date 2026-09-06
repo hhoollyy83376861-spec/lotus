@@ -41,7 +41,7 @@ export function SiteFooter() {
             </h3>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               <li>משלוחים והחזרות</li>
-              <li>צרו קשר · 03-000-0000</li>
+              <li>צרו קשר · 0583265617-</li>
             </ul>
           </div>
         </div>
