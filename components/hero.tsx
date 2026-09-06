@@ -27,7 +27,7 @@ export function Hero() {
         <div className="order-1 lg:order-2">
           <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-[2rem] bg-secondary shadow-[0_30px_80px_-40px_rgba(80,60,40,0.5)]">
             <Image
-              src="/products/hero.png"
+              src="/products/לוגו.png"
               alt="אישה עוטה מטפחת משי חלקה בגוון שמנת, עיצוב יוקרתי ואלגנטי"
               fill
               priority
