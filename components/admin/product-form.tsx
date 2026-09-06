@@ -9,6 +9,9 @@ type Props = {
   onSubmit: (input: ProductInput) => void
 }
 
+const SUPABASE_URL = 'https://qarkwbfqxdklhzyigbpg.supabase.co/rest/v1/products'
+const SUPABASE_KEY = 'sb_publishable_uffXj1JpQqmPrOxd2daNNw_a01gzlpT'
+
 const badgeOptions: { value: Exclude<Badge, null> | 'none'; label: string }[] = [
   { value: 'none', label: 'ללא תגית' },
   { value: 'bestseller', label: 'נמכר ביותר' },
@@ -30,6 +33,7 @@ export function ProductForm({ onSubmit }: Props) {
   const [price, setPrice] = useState('')
   const [badge, setBadge] = useState<string>('none')
   const [image, setImage] = useState('')
+  const [loading, setLoading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function handleFile(file: File | undefined) {
@@ -47,17 +51,41 @@ export function ProductForm({ onSubmit }: Props) {
     if (fileRef.current) fileRef.current.value = ''
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!name.trim() || !price) return
-    onSubmit({
+
+    setLoading(true)
+
+    const newProduct = {
+      id: 'product-' + Date.now(),
       name: name.trim(),
       color: color.trim(),
       price: Number(price),
       image: image || '/products/silk-ivory.png',
-      badge: badge === 'none' ? null : (badge as Badge),
-    })
+      badge: badge === 'none' ? null : badge,
+    }
+
+    try {
+      // שמירה ישירה ל-Supabase בענן
+      await fetch(SUPABASE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(newProduct),
+      })
+    } catch (err) {
+      console.error('Error saving to Supabase:', err)
+    }
+
+    // עדכון מקומי של המסך
+    onSubmit(newProduct)
     reset()
+    setLoading(false)
   }
 
   const fieldClass =
@@ -65,7 +93,7 @@ export function ProductForm({ onSubmit }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-border bg-card p-6">
-      <h2 className="font-serif text-xl font-semibold text-foreground">הוספת מטפחת חדשה</h2>
+      <h2 className="font-serif text-xl font-semibold text-foreground">הוספת מטפחת חדשה (לשמירה בענן)</h2>
 
       <div className="flex items-center gap-4">
         <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
@@ -123,8 +151,8 @@ export function ProductForm({ onSubmit }: Props) {
         </select>
       </div>
 
-      <Button type="submit" className="w-full bg-foreground text-background hover:bg-foreground/90">
-        הוספה לקטלוג
+      <Button type="submit" disabled={loading} className="w-full bg-foreground text-background hover:bg-foreground/90">
+        {loading ? 'שומר בענן...' : 'הוספה לקטלוג (לענן)'}
       </Button>
     </form>
   )
