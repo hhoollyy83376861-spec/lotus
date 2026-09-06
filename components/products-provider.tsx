@@ -11,8 +11,6 @@ import {
 } from 'react'
 import { products as seedProducts, type Product } from '@/lib/products'
 
-const STORAGE_KEY = 'lotus:products:v1'
-
 export type ProductInput = Omit<Product, 'id'>
 
 type ProductsContextValue = {
@@ -26,38 +24,44 @@ type ProductsContextValue = {
 
 const ProductsContext = createContext<ProductsContextValue | null>(null)
 
-function makeId() {
-  return `p_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`
-}
+const SUPABASE_URL = 'https://qarkwbfqxdklhzyigbpg.supabase.co/rest/v1/products'
+const SUPABASE_KEY = 'sb_publishable_uffXj1JpQqmPrOxd2daNNw_a01gzlpT'
 
 export function ProductsProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>(seedProducts)
   const [ready, setReady] = useState(false)
 
+  // טעינת המוצרים מ-Supabase בעליית האתר
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored) as Product[]
-        if (Array.isArray(parsed)) setProducts(parsed)
+    async function fetchProducts() {
+      try {
+        const res = await fetch(SUPABASE_URL, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+          },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data) && data.length > 0) {
+            setProducts(data)
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching from Supabase:', err)
+      } finally {
+        setReady(true)
       }
-    } catch {
-      // ignore malformed storage, keep seed
     }
-    setReady(true)
+    fetchProducts()
   }, [])
 
-  useEffect(() => {
-    if (!ready) return
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(products))
-    } catch {
-      // storage may be full (large data-URL images) — fail silently
-    }
-  }, [products, ready])
-
   const addProduct = useCallback((input: ProductInput) => {
-    setProducts((prev) => [{ ...input, id: makeId() }, ...prev])
+    const newProduct: Product = {
+      ...input,
+      id: 'p_' + Date.now().toString(36),
+    }
+    setProducts((prev) => [newProduct, ...prev])
   }, [])
 
   const updateProduct = useCallback((id: string, input: Partial<ProductInput>) => {
