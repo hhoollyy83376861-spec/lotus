@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   description:
     'בוטיק יוקרה למטפחות ראש וכיסויי שיער לנשים. מטפחות סאטן חלקות שלא מחליקות, במידה 1×1 מ׳, בגוונים רכים ואלגנטיים.',
   generator: 'v0.app',
+  verification: {
+    google: 'NZpXKNzVFn3ytf2MAU6MHuLcmxJSDjHX-S_mQMTEaiQ',
+  },
 }
 
 export const viewport: Viewport = {
